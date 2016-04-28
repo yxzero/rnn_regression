@@ -61,3 +61,4 @@ deploy_key_rsa
 
 *.pkl
 *.npz
+*~
