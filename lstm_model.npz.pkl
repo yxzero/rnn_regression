@@ -1,9 +1,0 @@
-€}q(Uvalid_batch_sizeqK@U	optimizerqc__main__
-adadelta
-qU	validFreqqKÈU
-dim_outputqKU	dim_inoutqKU
-batch_sizeqKPUdecay_cq	G?*6âëC-Upatienceq
-K
-UsavetoqUlstm_model.npzqUsaveFreqqMVUlrateqG?@bMÒñ©üU
-max_epochsqKÈU	dim_inputqK2UdispFreqqK
-UydimqKu.
