@@ -1,0 +1,10 @@
+libcerf.o: libcerf.c /usr/include/stdc-predef.h syscfg.h ../config.h \
+ /usr/lib/gcc/x86_64-linux-gnu/4.8/include/stdbool.h
+
+/usr/include/stdc-predef.h:
+
+syscfg.h:
+
+../config.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stdbool.h:
