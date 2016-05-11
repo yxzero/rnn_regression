@@ -58,6 +58,7 @@ def _load_data(x_data, y_data, valid_portion=0.3):
                 np.array(train_set_x_lstm2),np.array(train_set_x_c2),
                 np.array(train_set_x_lstm3),np.array(train_set_x_c3),
             ]
+
     train_y = np.array(train_set_y)
     test_x = [
                 np.array(test_set_x_lstm1),np.array(test_set_x_c1),
@@ -68,7 +69,7 @@ def _load_data(x_data, y_data, valid_portion=0.3):
     return (train_x, train_y),(test_x, test_y)
 
 class MultipleLSTM():
-    def __init__(self, input_dim=10, layers_number=3, lstm_hidden=18, lstm_timesteps=10, output_dim=1):
+    def __init__(self, input_dim=8, layers_number=3, lstm_hidden=50, lstm_timesteps=8, output_dim=1):
         self.input_dim = input_dim
         self.layers_number = layers_number
         self.lstm_hidden = lstm_hidden
@@ -92,33 +93,36 @@ class MultipleLSTM():
                 W_regularizer=l2(0.001), activity_regularizer=activity_l2(0.001)))
             plot(model, to_file='model_lstm.png', show_shapes=True)
             lstm_branch.append(model)
-        merged = Merge(lstm_branch, mode='concat')
-        #merged = Merge(lstm_branch)
+        #merged = Merge(lstm_branch, mode='concat')
+        merged = Merge(lstm_branch)
         final_model = Sequential()
         final_model.add(merged)
         final_model.add(Dense(self.output_dim, input_dim=(self.lstm_hidden+6)*3,
             activation='linear', W_regularizer=l2(0.001), activity_regularizer=activity_l2(0.001)))
         #final_model.add(Activation('linear'))
         self.model = final_model
-        self.model.compile(loss="mean_squared_error", optimizer="rmsprop")
+        self.model.compile(loss="mean_squared_error", optimizer="adagrad")
         plot(self.model, to_file='model.png', show_shapes=True)
     
-    def train_model(self, X_train, Y_train, batch_size=1200, nb_epoch=1000, validation_split=0.1):
+    def train_model(self, X_train, Y_train, batch_size=1200, nb_epoch=2000, validation_split=0.1):
         self.model.fit(X_train, Y_train, batch_size=batch_size,
                 nb_epoch=nb_epoch, validation_split=validation_split)
 
     def prediction(self, X_test, Y_test):
         import matplotlib.pyplot as plt
         target = self.model.predict(X_test)
+        #10 **
+        #target = 10 ** target
+        #Y_test = 10 ** Y_test
         test_error = np.sqrt(((target - Y_test) ** 2).mean(axis=0))
         print test_error
-        '''
+        
         plt.plot(Y_test, target, '.')
         plt.plot([0,80000],[0,80000])
         plt.xlim(0,80000)
         plt.ylim(0,80000)
         plt.show()
-        '''
+        
         return target, test_error
 
 def Load_data():
@@ -136,6 +140,12 @@ if __name__ == "__main__":
     (train_x, train_y),(test_x, test_y) = Load_data()
     minerror = float("inf")
     best_i = 0
+    mp_lstm = MultipleLSTM()
+    mp_lstm.build_model()
+    mp_lstm.train_model(train_x, train_y)
+    target, error = mp_lstm.prediction(test_x, test_y)
+
+    '''
     for i in range(10,100,2):
         mp_lstm = MultipleLSTM(lstm_hidden=i)
         mp_lstm.build_model()
@@ -148,3 +158,4 @@ if __name__ == "__main__":
         print("error:" + str(error) + ' ' + "minerror:" + str(minerror))
     print(best_i)
     print(minerror)
+    '''

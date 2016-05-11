@@ -13,6 +13,7 @@ import numpy as np
 from draw_data import draw_data
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
+
 def TOPk(x_dict, k):
     import heapq
     from operator import itemgetter
@@ -69,7 +70,21 @@ def read_sourse(each_item):
     for i in hours_file.readlines():
         line = i.strip().split('\t')
         if line[0] in each_item:
+            '''
+            a1 = 0.0
+            a2 = 0.0
+            a3 = 0.0
+            if float(line[2]) >= 1:
+                a2 = np.log10(float(line[2]))
+            if float(line[3]) >= 1:
+                a3 = np.log10(float(line[3]))
+            if float(line[1]) >= 1:
+                a1 = np.log10(float(line[1]))
+            if float(line[4]) < 20:
+                continue
+            '''
             each_item[line[0]].append([float(line[1]), float(line[2]), float(line[3]), float(line[4])])
+            #each_item[line[0]].append([a1, a2, a3, np.log10(float(line[4]))])
     hours_file.close()
 
 def find_most_simirlar(cid, find_days_id, each_item):
@@ -83,12 +98,12 @@ def find_most_simirlar(cid, find_days_id, each_item):
             continue
         i_vector =  np.array(each_item[i][3])
         tempc = c_vector - i_vector
-        hash_sim[i] = (np.dot(tempc,tempc.T))**0.5
+        hash_sim[i] = (np.dot(tempc,tempc.T))**0.5 
     if len(hash_sim) > 0:
         scores = max(hash_sim.iteritems(), key = itemgetter(1))
         return scores[1], each_item[scores[0]]
     else:
-        return 0,[0,0,0,0,[0,0,0,0]]
+        return 50.0,[0,0,0,0,[0,0,0,0]]
 
 def final_data(all_days, each_item):
     X_data_lstm1 = []
@@ -101,7 +116,7 @@ def final_data(all_days, each_item):
     cidk = 0
     cidv = 0
     cidk0 = 0
-    for i in range(10, len(all_days)):
+    for i in range(8, len(all_days)):
         for cid in all_days[i]:
             #前6天相似的
             if cid not in each_item:
@@ -121,21 +136,29 @@ def final_data(all_days, each_item):
             xmintemp1 = []
             xmintemp2 = []
             xmintemp3 = []
-            for j in range(10, 0, -1):
+            for j in range(8, 0, -1):
                 scores, onehours = find_most_simirlar(cid, all_days[i-j], 
                         each_item)
+                temp_score = (10.0-scores)/10.0
                 scores0, onehours0 = find_most_simirlar(cid0, all_days[i-j], 
                         each_item)
+                '''
                 xmintemp1.append([scores0,onehours0[4][0],onehours0[4][1],onehours0[4][2],onehours0[4][3],
                     scores,onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]])
+                '''
+                temp_score0 = (10.0-scores0)/10.0
+                xmintemp1.append([temp_score0*onehours0[4][0],temp_score0*onehours0[4][1],temp_score0*onehours0[4][2],temp_score0*onehours0[4][3],
+                    temp_score*onehours[4][0],temp_score*onehours[4][1],temp_score*onehours[4][2],temp_score*onehours[4][3]])
                 scores1, onehours1 = find_most_simirlar(cid1, all_days[i-j], 
                         each_item)
-                xmintemp2.append([scores1,onehours1[4][0],onehours1[4][1],onehours1[4][2],onehours1[4][3],
-                    scores,onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]])
+                temp_score1 = (10.0-scores1)/10.0
+                xmintemp2.append([temp_score1*onehours1[4][0],temp_score1*onehours1[4][1],temp_score1*onehours1[4][2],temp_score1*onehours1[4][3],
+                    temp_score*onehours[4][0],temp_score*onehours[4][1],temp_score*onehours[4][2],temp_score*onehours[4][3]])
                 scores2, onehours2 = find_most_simirlar(cid2, all_days[i-j],
                         each_item)
-                xmintemp3.append([scores2,onehours2[4][0],onehours2[4][1],onehours2[4][2],onehours2[4][3],
-                    scores,onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]]) 
+                temp_score2 = (10.0-scores2)/10.0
+                xmintemp3.append([temp_score2*onehours2[4][0],temp_score2*onehours2[4][1],temp_score2*onehours2[4][2],temp_score2*onehours2[4][3],
+                    temp_score*onehours[4][0],temp_score*onehours[4][1],temp_score*onehours[4][2],temp_score*onehours[4][3]]) 
             X_data_lstm1.append(xmintemp1)
             X_data_lstm2.append(xmintemp2)
             X_data_lstm3.append(xmintemp3)
@@ -180,7 +203,7 @@ if __name__ == "__main__":
     each_file = open("each1.top", 'w')
     each_file.write(str(each_item))
     each_file.close()
-    
+    '''
     allfile = open("allday1.list", 'r')
     all_days_str = allfile.read()
     allfile.close()
@@ -197,7 +220,7 @@ if __name__ == "__main__":
     each_file = open("each2.top", 'w')
     each_file.write(str(each_item))
     each_file.close()
-    '''
+    
     allfile = open("allday2.list", 'r')
     all_days_str = allfile.read()
     allfile.close()
@@ -209,6 +232,7 @@ if __name__ == "__main__":
     print(len(each_item))
     X_data,Y_data = final_data(all_days, each_item)
     print(len(Y_data))
+
     '''
 
     allfile = open("allday.list", 'r')

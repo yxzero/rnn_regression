@@ -22,12 +22,12 @@ f = open("svm_test.txt", 'r')
 test_x = []
 for i in f.readlines():
     line = i.strip().split()
-    test_x.append(float(line[0]))
+    test_x.append(10 ** float(line[0]))
 f.close()
 fre = open("result.txt", 'r')
 target = []
 for i in fre.readlines():
-    target.append(float(i.strip()))
+    target.append(10 ** float(i.strip()))
 fre.close()
 rmse = np.sqrt(((np.array(test_x) - np.array(target)) ** 2).mean())
 print(rmse)
@@ -43,8 +43,18 @@ X_train = []
 f = open("2.5hour.txt", 'r')
 for i in f.readlines():
     line = i.strip().split('\t')
-    X_train.append([float(line[1]), float(line[2]), float(line[3]),
-        float(line[4])])
+    a1 = 0.0
+    a2 = 0.0
+    a3 = 0.0
+    if float(line[2]) >= 1:
+        a2 = np.log10(float(line[2]))
+    if float(line[3]) >= 1:
+        a3 = np.log10(float(line[3]))
+    if float(line[1]) >= 1:
+        a1 = np.log10(float(line[1]))
+    if float(line[4]) < 20:
+        continue
+    X_train.append([a1, a2, a3, np.log10(float(line[4]))])
 f.close()
 #plt.plot(np.array(X_train)[:,0], np.array(X_train)[:,1], '.')
 #plt.show()
