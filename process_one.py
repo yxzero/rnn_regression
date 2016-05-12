@@ -76,10 +76,8 @@ def read_sourse(each_item):
     hours_file = open("2.5hour.txt", 'r')
     for i in hours_file.readlines():
         line = i.strip().split('\t')
-        if float(line[3]) < 5:
-            continue
         if line[0] in each_item:
-            '''
+            
             a1 = 0.0
             a2 = 0.0
             a3 = 0.0
@@ -91,7 +89,7 @@ def read_sourse(each_item):
                 a1 = np.log10(float(line[1]))
             if float(line[4]) < 20:
                 continue
-            '''
+            
             each_item[line[0]].append([float(line[1]), float(line[2]), float(line[3]), float(line[4])])
             #each_item[line[0]].append([a1, a2, a3, np.log10(float(line[4]))])
     hours_file.close()
@@ -109,10 +107,10 @@ def find_most_simirlar(cid, find_days_id, each_item):
         tempc = c_vector - i_vector
         hash_sim[i] = (np.dot(tempc,tempc.T))**0.5 
     if len(hash_sim) > 0:
-        scores = min(hash_sim.iteritems(), key = itemgetter(1))
+        scores = max(hash_sim.iteritems(), key = itemgetter(1))
         return scores[1], each_item[scores[0]]
     else:
-        return 10.0,[0,0,0,0,[0,0,0,0]]
+        return 50.0,[0,0,0,0,[0,0,0,0]]
 
 def final_data(all_days, each_item):
     X_data_lstm1 = []

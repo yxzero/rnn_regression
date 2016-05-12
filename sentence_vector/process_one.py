@@ -107,7 +107,7 @@ def find_most_simirlar(cid, find_days_id, each_item):
             continue
         i_vector =  np.array(each_item[i][3])
         tempc = c_vector - i_vector
-        hash_sim[i] = (np.dot(tempc,tempc.T))**0.5 
+        hash_sim[i] = np.dot(tempc,tempc.T) 
     if len(hash_sim) > 0:
         scores = min(hash_sim.iteritems(), key = itemgetter(1))
         return scores[1], each_item[scores[0]]
@@ -115,20 +115,15 @@ def find_most_simirlar(cid, find_days_id, each_item):
         return 10.0,[0,0,0,0,[0,0,0,0]]
 
 def final_data(all_days, each_item):
-    X_data_lstm1 = []
-    X_data_lstm2 = []
-    X_data_lstm3 = []
-    X_data_c1 = []
-    X_data_c2 = []
-    X_data_c3 = []
-    X_data_s1 = []
-    X_data_s2 = []
-    X_data_s3 = []
+    from sklearn import preprocessing
+    X_data_lstm = []
+    X_data_c = []
+    X_data_s = []
     Y_data = []
     cidk = 0
     cidv = 0
     cidk0 = 0
-    for i in range(8, len(all_days)):
+    for i in range(12, len(all_days)):
         for cid in all_days[i]:
             #前6天相似的
             if cid not in each_item:
@@ -145,49 +140,21 @@ def final_data(all_days, each_item):
                     or cid2 not in each_item or len(each_item[cid2]) != 5):
                 cidk0 += 1
                 continue
-            xmintemp1 = []
-            xmintemp2 = []
-            xmintemp3 = []
-            xminscore1 = []
-            xminscore2 = []
-            xminscore3 = []
-            for j in range(8, 0, -1):
+            xmintemp = []
+            xminscore = []
+            for j in range(12, 0, -1):
                 scores, onehours = find_most_simirlar(cid, all_days[i-j], 
                         each_item)
-                temp_score = (10.0-scores)/10.0
-                scores0, onehours0 = find_most_simirlar(cid0, all_days[i-j], 
-                        each_item)
-                temp_score0 = (10.0-scores0)/10.0
-                xminscore1.append(temp_score*temp_score0*10.0)
-                xmintemp1.append([onehours0[4][0],onehours0[4][1],onehours0[4][2],onehours0[4][3],
-                    onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]])
-                #xmintemp1.append([onehours0[4][0],onehours0[4][1],onehours[4][0],onehours[4][1]])
-                scores1, onehours1 = find_most_simirlar(cid1, all_days[i-j], 
-                        each_item)
-                temp_score1 = (10.0-scores1)/10.0
-                xminscore2.append(temp_score*temp_score1*10.0)
-                xmintemp2.append([onehours1[4][0],onehours1[4][1],onehours1[4][2],onehours1[4][3],
-                    onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]])
-                #xmintemp2.append([scores1,onehours1[4][0],onehours1[4][1],scores,onehours[4][0],onehours[4][1]])
-                scores2, onehours2 = find_most_simirlar(cid2, all_days[i-j],
-                        each_item)
-                temp_score2 = (10.0-scores2)/10.0
-                xminscore3.append(temp_score*temp_score2*10.0)
-                xmintemp3.append([onehours2[4][0],onehours2[4][1],onehours2[4][2],onehours2[4][3],
-                    onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]])
-                #xmintemp3.append([scores2,onehours2[4][0],onehours2[4][1],scores,onehours[4][0],onehours[4][1]]) 
-            X_data_lstm1.append(xmintemp1)
-            X_data_lstm2.append(xmintemp2)
-            X_data_lstm3.append(xmintemp3)
-            X_data_c1.append([each_item[cid][0][1][0],each_item[cid][0][1][1],1.0,
-                each_item[cid][4][0], each_item[cid][4][1], each_item[cid][4][2]])
-            X_data_c2.append([each_item[cid][1][1][0],each_item[cid][1][1][1],1.0,
-                each_item[cid][4][0], each_item[cid][4][1], each_item[cid][4][2]])
-            X_data_c3.append([each_item[cid][2][1][0],each_item[cid][2][1][1],1.0,
-                each_item[cid][4][0], each_item[cid][4][1], each_item[cid][4][2]])
-            X_data_s1.append([xminscore1])
-            X_data_s2.append([xminscore2])
-            X_data_s3.append([xminscore3])
+                xminscore.append(scores)
+                xmintemp.append([onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]])
+            X_data_lstm.append(xmintemp)
+            X_data_c.append([
+                each_item[cid][0][1][0],each_item[cid][0][1][1],
+                #each_item[cid][1][1][0],each_item[cid][1][1][1],
+                #each_item[cid][2][1][0],each_item[cid][2][1][1],
+                each_item[cid][4][0], each_item[cid][4][1], each_item[cid][4][2], 1.0])
+            xminscore = (1-preprocessing.normalize(xminscore)).tolist()
+            X_data_s.append(xminscore)
             '''
             xmintemp = []
             xmintemp.append([each_item[cid][0][1][0],each_item[cid][0][1][1],1.0, each_item[cid][4][0]])
@@ -199,7 +166,7 @@ def final_data(all_days, each_item):
     print(cidk)
     print(cidv)
     print(cidk0)
-    return (X_data_lstm1,X_data_lstm2,X_data_lstm3,X_data_c1,X_data_c2,X_data_c3,X_data_s1,X_data_s2,X_data_s3),Y_data
+    return (X_data_lstm,X_data_c,X_data_s),Y_data
 '''
     each_item:0,1,2是与当前一天的平均量大的;3是docment2id;4是[1小时，全部]
 '''
@@ -262,9 +229,9 @@ if __name__ == "__main__":
     all_days = eval(all_days_str)
     each_item = eval(each_item_str)
     '''
-    xfile = open("X.data", 'w')
+    xfile = open("X1.data", 'w')
     xfile.write(str(X_data))
     xfile.close()
-    yfile = open("Y.data", 'w')
+    yfile = open("Y1.data", 'w')
     yfile.write(str(Y_data))
     yfile.close()
