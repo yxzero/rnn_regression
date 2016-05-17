@@ -42,8 +42,8 @@ def _load_data(x_data, y_data, valid_portion=0.3):
     train_set_x_c = [X_data_c[s] for s in sidx[:n_train]]
     train_set_x_s = [X_data_scores[s] for s in sidx[:n_train]]
     train_set_y = [[y_data[s]] for s in sidx[:n_train]]
-    print(train_set_x_s)
-    exit()
+    #print(train_set_x_s)
+    #exit()
 
     train_x = [
                 np.array(train_set_x_lstm),np.array(train_set_x_s),np.array(train_set_x_c),
@@ -56,7 +56,7 @@ def _load_data(x_data, y_data, valid_portion=0.3):
     return (train_x, train_y),(test_x, test_y)
 
 class MultipleLSTM():
-    def __init__(self, input_dim=4, batch_size=700, lstm_hidden=6, lstm_timesteps=12, output_dim=1):
+    def __init__(self, input_dim=4, batch_size=800, lstm_hidden=6, lstm_timesteps=6, output_dim=1):
         self.input_dim = input_dim
         self.lstm_hidden = lstm_hidden
         self.output_dim = output_dim

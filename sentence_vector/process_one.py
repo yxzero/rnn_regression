@@ -123,7 +123,7 @@ def final_data(all_days, each_item):
     cidk = 0
     cidv = 0
     cidk0 = 0
-    for i in range(12, len(all_days)):
+    for i in range(6, len(all_days)):
         for cid in all_days[i]:
             #前6天相似的
             if cid not in each_item:
@@ -142,14 +142,16 @@ def final_data(all_days, each_item):
                 continue
             xmintemp = []
             xminscore = []
-            for j in range(12, 0, -1):
+            #for j in range(12, 0, -1):
+            for j in range(1, 7, 1):
                 scores, onehours = find_most_simirlar(cid, all_days[i-j], 
                         each_item)
                 xminscore.append(scores)
                 xmintemp.append([onehours[4][0],onehours[4][1],onehours[4][2],onehours[4][3]])
+                #xmintemp.append([onehours[4][3]])
             X_data_lstm.append(xmintemp)
             X_data_c.append([
-                each_item[cid][0][1][0],each_item[cid][0][1][1],
+                #each_item[cid][0][1][0],each_item[cid][0][1][1],
                 #each_item[cid][1][1][0],each_item[cid][1][1][1],
                 #each_item[cid][2][1][0],each_item[cid][2][1][1],
                 each_item[cid][4][0], each_item[cid][4][1], each_item[cid][4][2], 1.0])
